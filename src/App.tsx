@@ -11,7 +11,7 @@ import {
   Shield,
   Trash2,
   AudioLines,
-  Settings2,
+  Settings,
   X,
 } from 'lucide-react';
 
@@ -439,7 +439,7 @@ export function App() {
           onPointerCancel={cancelHold}
           onContextMenu={(event) => event.preventDefault()}
         >
-          <Settings2 size={24} strokeWidth={1.6} />
+          <Settings size={24} strokeWidth={1.6} />
           <svg className="secret-ring" viewBox="0 0 48 48" aria-hidden="true">
             <circle cx="24" cy="24" r="21" pathLength="1" strokeDasharray="1" strokeDashoffset={1 - pressProgress} />
           </svg>
