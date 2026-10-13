@@ -572,6 +572,11 @@ svg { flex-shrink: 0; }
 .time-pill { display: grid; gap: 8px; margin: 0; padding: 0; background: transparent; box-shadow: none; width: auto; }
 .time-pill span { font-size: 16px; color: #657184; font-weight: 400; }
 .time-pill strong { font-size: 64px; font-weight: 500; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.time-display { display: flex; align-items: baseline; justify-content: center; gap: 12px; white-space: nowrap; }
+.time-pill .time-period { font-size: 24px; font-weight: 500; color: #3d4c61; }
+.time-picker { display: grid; grid-template-columns: minmax(76px,1.25fr) minmax(48px,1fr) 8px minmax(52px,1fr); gap: 6px; align-items: center; }
+.setting-field .time-picker select { height: 56px; padding: 10px 8px; font-size: 20px; text-align: center; border-radius: 16px; }
+.time-colon { font-size: 22px; text-align: center; color: #526177; }
 .primary-button, .soft-button, .voice-button, .help-button, .teacher-button, .text-button { border-radius: 20px; font-weight: 600; }
 .primary-button { width: 100%; min-height: 72px; font-size: 22px; background: linear-gradient(180deg, #557bb7, #466daa); border: 1px solid rgba(255,255,255,.35); box-shadow: 0 7px 18px rgba(63,99,151,.16), inset 0 1px 0 rgba(255,255,255,.25); }
 .soft-button, .voice-button, .help-button { min-height: 56px; background: rgba(255,255,255,.62); color: #3f5879; border: 1px solid rgba(255,255,255,.9); font-size: 20px; box-shadow: none; }

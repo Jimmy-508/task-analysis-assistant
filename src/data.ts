@@ -74,6 +74,34 @@ export function validTime(value: unknown): value is string {
   return typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
 }
 
+export type TimePeriod = '上午' | '下午';
+
+export function getTime12Parts(value: string) {
+  const [hours, minutes] = (validTime(value) ? value : '00:00').split(':').map(Number);
+  return { period: (hours < 12 ? '上午' : '下午') as TimePeriod, hour: hours % 12 || 12, minute: minutes };
+}
+
+export function formatTime12Hour(value: string) {
+  if (!validTime(value)) return '--';
+  const { period, hour, minute } = getTime12Parts(value);
+  return `${period} ${hour}:${String(minute).padStart(2, '0')}`;
+}
+
+export function to24Hour(period: TimePeriod, hour: number, minute: number) {
+  if ((period !== '上午' && period !== '下午') || !Number.isInteger(hour) || hour < 1 || hour > 12 || !Number.isInteger(minute) || minute < 0 || minute > 59) {
+    throw new RangeError('Invalid 12-hour time');
+  }
+  const hours = hour % 12 + (period === '下午' ? 12 : 0);
+  return `${String(hours).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
+export function formatSessionDateTime(value: string) {
+  const time = new Date(value);
+  if (!Number.isFinite(time.getTime())) return '--';
+  const clock = `${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}`;
+  return `${time.toLocaleDateString('zh-TW')} ${formatTime12Hour(clock)}`;
+}
+
 export function scheduleTodayAt(time: string, now = new Date()) {
   const [hours, minutes] = time.split(':').map(Number);
   const due = new Date(now);

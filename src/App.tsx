@@ -22,6 +22,7 @@ import {
   ListChecks,
 } from 'lucide-react';
 import { STORAGE_KEY, DEFAULT_TASK_ID, migrateData, makeId, dailyReminder, sessionsForTask, splitDueReminders, validTime, type TaskSettings, type Step, type StepRecord, type SessionRecord, type ReminderState, type StoredState } from './data';
+import { formatTime12Hour, getTime12Parts, to24Hour, formatSessionDateTime, type TimePeriod } from './data';
 
 type View = 'home' | 'task' | 'complete' | 'teacher';
 
@@ -337,7 +338,7 @@ export function App() {
   function setDailyReminder() {
     prepareReminderAudio();
     setReminders((current) => [...current.filter((item) => item.taskId !== settingsTask.id || item.kind !== 'daily'), dailyReminder(settingsTask)]);
-    setToast(`已設定「${settingsTask.name}」${settingsTask.reminderTime} 提醒。`);
+    setToast(`已設定「${settingsTask.name}」${formatTime12Hour(settingsTask.reminderTime)} 提醒。`);
   }
 
   function setTestReminder(seconds: number) {
@@ -451,7 +452,7 @@ export function App() {
             <h1>{selectedTask.name}</h1>
             <div className="time-pill">
               <span>提醒時間</span>
-              <strong>{selectedTask.reminderTime}</strong>
+              <TimeDisplay value={selectedTask.reminderTime} />
             </div>
             <button className="primary-button" onClick={() => beginTask(selectedTask)}>
               <Play size={22} />
@@ -531,10 +532,7 @@ export function App() {
       {settingsOpen && settingsTask && (
         <SettingsSheet onClose={() => setSettingsOpen(false)}>
           <label className="setting-field"><span>提醒工作</span><select aria-label="提醒工作" value={settingsTask.id} onChange={(event) => setSettingsTaskId(event.target.value)}>{tasks.map((task) => <option key={task.id} value={task.id}>{task.name}</option>)}</select></label>
-          <label className="setting-field">
-            <span>提醒時間</span>
-            <input type="time" value={settingsTask.reminderTime} onChange={(event) => changeReminderTime(settingsTask.id, event.target.value)} onBlur={(event) => changeReminderTime(settingsTask.id, event.target.value)} />
-          </label>
+          <TimePicker value={settingsTask.reminderTime} onChange={(time) => changeReminderTime(settingsTask.id, time)} />
           <button className="soft-button" onClick={() => { setDailyReminder(); setSettingsOpen(false); }}>
             <Bell size={20} />設定提醒
           </button>
@@ -619,6 +617,30 @@ function SettingsSheet({ children, onClose, title = '設定' }: { children: Reac
   );
 }
 
+function TimeDisplay({ value }: { value: string }) {
+  const { period, hour, minute } = getTime12Parts(value);
+  return <div className="time-display" aria-label={formatTime12Hour(value)}><span className="time-period">{period}</span><strong>{hour}:{String(minute).padStart(2, '0')}</strong></div>;
+}
+
+function TimePicker({ value, onChange }: { value: string; onChange: (time: string) => void }) {
+  const { period, hour, minute } = getTime12Parts(value);
+  return <div className="setting-field" role="group" aria-label="提醒時間">
+    <span>提醒時間</span>
+    <div className="time-picker">
+      <select aria-label="提醒時段" value={period} onChange={(event) => onChange(to24Hour(event.target.value as TimePeriod, hour, minute))}>
+        <option value="上午">上午</option><option value="下午">下午</option>
+      </select>
+      <select aria-label="提醒小時" value={hour} onChange={(event) => onChange(to24Hour(period, Number(event.target.value), minute))}>
+        {Array.from({ length: 12 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1}</option>)}
+      </select>
+      <span className="time-colon" aria-hidden="true">：</span>
+      <select aria-label="提醒分鐘" value={minute} onChange={(event) => onChange(to24Hour(period, hour, Number(event.target.value)))}>
+        {Array.from({ length: 60 }, (_, index) => <option key={index} value={index}>{String(index).padStart(2, '0')}</option>)}
+      </select>
+    </div>
+  </div>;
+}
+
 function TaskEditor({ task, onSave, onClose }: { task: TaskSettings | null; onSave: (task: TaskSettings) => void; onClose: () => void }) {
   const [name, setName] = useState(task?.name ?? '');
   const [time, setTime] = useState(task?.reminderTime ?? '21:30');
@@ -640,7 +662,7 @@ function TaskEditor({ task, onSave, onClose }: { task: TaskSettings | null; onSa
       onSave({ id: task?.id ?? makeId(), name: name.trim(), reminderTime: time, steps: steps.map((step) => ({ ...step, name: step.name.trim() })), createdAt: task?.createdAt ?? now, updatedAt: now });
     }}>
       <label className="setting-field"><span>我要做的事</span><input required type="text" value={name} onChange={(event) => setName(event.target.value)} onBlur={(event) => setName(event.target.value)} aria-label="工作名稱" /></label>
-      <label className="setting-field"><span>提醒時間</span><input required type="time" value={time} onChange={(event) => setTime(event.target.value)} onBlur={(event) => setTime(event.target.value)} /></label>
+      <TimePicker value={time} onChange={setTime} />
       <div className="editor-steps"><h3>我要怎麼完成</h3>{steps.map((step, index) => <div key={step.id} className="editor-step">
         <label className="setting-field"><span>步驟 {index + 1}</span><textarea rows={2} required value={step.name} onChange={(event) => updateStep(step.id, event.target.value)} onBlur={(event) => updateStep(step.id, event.target.value)} aria-label={`步驟 ${index + 1} 內容`} /></label>
         <div className="step-edit-actions">
@@ -772,7 +794,7 @@ function TeacherDashboard({
             .map((item) => (
               <details key={item.session.id} className="session-card">
                 <summary>
-                  <span>{new Date(item.session.startedAt).toLocaleString('zh-TW')}</span>
+                  <span>{formatSessionDateTime(item.session.startedAt)}</span>
                   <strong>{percent(item.independentRate)}</strong>
                 </summary>
                 <div className="session-details">
