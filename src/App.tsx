@@ -443,6 +443,7 @@ export function App() {
       {view === 'home' && <button className="add-task-entry" aria-label="新增工作" title="新增工作" onClick={() => { setEditingTask(null); setEditorOpen(true); }}><Plus size={26} strokeWidth={1.6} /></button>}
 
       {view === 'home' && (
+        <>
         <section className="home-view">
           <p className="home-heading">我要做的事</p>
           {selectedTask ? <div className="hero-copy" key={selectedTask.id}>
@@ -464,6 +465,10 @@ export function App() {
           </nav>}
           {reminders.filter((item) => item.taskId === selectedTask?.id && item.kind === 'test').map((item) => <p key={item.id} className="reminder-status" role="status"><Bell size={16} />{item.label}已設定</p>)}
         </section>
+        {!settingsOpen && !editorOpen && !deletingTask && !reminder && (
+          <footer className="designer-credit">Designed by Jimmy</footer>
+        )}
+        </>
       )}
 
       {view === 'task' && activeTask && currentStep && currentRecord && (
@@ -522,8 +527,6 @@ export function App() {
           onClear={clearRecords}
         />
       )}
-
-      <footer className="designer-credit">Designed by Jimmy</footer>
 
       {settingsOpen && settingsTask && (
         <SettingsSheet onClose={() => setSettingsOpen(false)}>

@@ -595,7 +595,6 @@ svg { flex-shrink: 0; }
 .task-bottom-action { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; padding: 16px 24px calc(16px + env(safe-area-inset-bottom)); display: flex; justify-content: center; background: rgba(238,242,249,.84); border-top: 1px solid rgba(255,255,255,.8); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
 .task-bottom-action .primary-button { width: min(100%,512px); }
 .app-task { padding-bottom: calc(134px + env(safe-area-inset-bottom)); }
-.app-task .designer-credit { padding-bottom: 20px; }
 .app-task .toast { bottom: calc(124px + env(safe-area-inset-bottom)); }
 .step-progress { height: 4px; width: 100%; background: #d2dbe8; border-radius: 4px; overflow: hidden; }
 .step-progress i { display: block; height: 100%; background: #6988b6; transition: width 240ms ease; }
@@ -655,7 +654,7 @@ svg { flex-shrink: 0; }
 .reminder-card h1 { font-size: 30px; line-height: 1.4; }
 .toast { border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 16px; background: rgba(42,56,77,.94); backdrop-filter: blur(24px); font-weight: 500; line-height: 1.5; animation: enter 180ms ease both; }
 .app-teacher { background: linear-gradient(145deg,#263140,#192431 65%,#252c3c); color: #f1f5fc; }
-.app-teacher .designer-credit { padding-bottom: calc(112px + env(safe-area-inset-bottom)); color: #a5b1c3; }
+.app-teacher { padding-bottom: calc(144px + env(safe-area-inset-bottom)); }
 .teacher-view { min-height: auto; padding: calc(32px + env(safe-area-inset-top)) 20px 24px; gap: 28px; }
 .teacher-header h1 { font-size: 30px; font-weight: 600; }
 .teacher-kicker { color: #b9c6d8; }
