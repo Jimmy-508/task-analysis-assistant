@@ -1,0 +1,606 @@
+:root {
+  color: #21313a;
+  background: #f6efe6;
+  font-family:
+    Inter, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow-x: hidden;
+  touch-action: manipulation;
+}
+
+button {
+  border: 0;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+  position: relative;
+  min-height: 100svh;
+  overflow-x: hidden;
+}
+
+.app-home,
+.app-task,
+.app-complete {
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0) 44%),
+    #f6efe6;
+}
+
+.secret-entry {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top));
+  right: 14px;
+  z-index: 20;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+.secret-ring {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  opacity: 0.78;
+  position: relative;
+}
+
+.secret-ring::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: inherit;
+  background: #f6efe6;
+}
+
+.home-view,
+.task-view,
+.complete-view {
+  width: min(100%, 560px);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: calc(34px + env(safe-area-inset-top)) 22px calc(28px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+}
+
+.home-view {
+  justify-content: center;
+  gap: 28px;
+}
+
+.top-mark,
+.teacher-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #5d6b6d;
+  font-size: 0.92rem;
+}
+
+.hero-copy p {
+  margin: 0 0 12px;
+  font-size: 1.24rem;
+  color: #687471;
+}
+
+.hero-copy h1 {
+  margin: 0;
+  font-size: clamp(2.35rem, 9vw, 4.1rem);
+  line-height: 1.1;
+  letter-spacing: 0;
+  color: #22343a;
+}
+
+.time-pill {
+  width: fit-content;
+  margin-top: 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #ffffffb8;
+  box-shadow: 0 12px 34px rgba(69, 58, 42, 0.08);
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.home-actions,
+.student-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.primary-button,
+.soft-button,
+.voice-button,
+.help-button,
+.teacher-button,
+.danger-button,
+.text-button {
+  min-height: 54px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.primary-button {
+  background: #24464f;
+  color: #fff;
+  box-shadow: 0 15px 36px rgba(36, 70, 79, 0.2);
+}
+
+.soft-button,
+.voice-button {
+  background: #fffaf3;
+  color: #263a3f;
+  box-shadow: inset 0 0 0 1px rgba(36, 70, 79, 0.1);
+}
+
+.text-button {
+  background: transparent;
+  color: #526669;
+  min-height: 46px;
+  box-shadow: none;
+}
+
+.help-button {
+  background: #fff4d8;
+  color: #4a4029;
+  box-shadow: inset 0 0 0 1px rgba(98, 75, 25, 0.1);
+}
+
+.browser-note {
+  margin: 2px 0 0;
+  color: #697673;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.task-view {
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.task-header {
+  display: grid;
+  gap: 12px;
+  color: #536467;
+  font-weight: 700;
+}
+
+.step-dots {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+
+.step-dots i {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(36, 70, 79, 0.14);
+}
+
+.step-dots i.done {
+  background: #2d6b72;
+}
+
+.step-panel {
+  display: grid;
+  gap: 22px;
+}
+
+.image-placeholder {
+  min-height: 170px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(135deg, rgba(117, 148, 133, 0.18), rgba(220, 199, 150, 0.28)),
+    #fffaf3;
+  color: #6c7975;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 1px rgba(36, 70, 79, 0.08);
+}
+
+.step-panel h1 {
+  margin: 0;
+  color: #1e3238;
+  font-size: clamp(2.1rem, 9vw, 4rem);
+  line-height: 1.16;
+  letter-spacing: 0;
+}
+
+.student-actions {
+  padding-bottom: 4px;
+}
+
+.student-actions button {
+  min-height: 62px;
+  font-size: 1.1rem;
+}
+
+.complete-view {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 18px;
+}
+
+.complete-badge {
+  width: 98px;
+  height: 98px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #24464f;
+  color: white;
+  box-shadow: 0 18px 42px rgba(36, 70, 79, 0.25);
+}
+
+.complete-view h1 {
+  margin: 8px 0 0;
+  font-size: clamp(2.6rem, 11vw, 4.5rem);
+  letter-spacing: 0;
+}
+
+.complete-view p {
+  margin: 0 0 18px;
+  font-size: 1.2rem;
+  color: #5c6869;
+}
+
+.reminder-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(21, 33, 37, 0.64);
+  backdrop-filter: blur(10px);
+}
+
+.reminder-card {
+  width: min(100%, 440px);
+  padding: 30px 22px;
+  border-radius: 8px;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+  background: #fffaf3;
+  color: #24383e;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+.reminder-card p,
+.reminder-card h1 {
+  margin: 0;
+}
+
+.reminder-card h1 {
+  font-size: 2rem;
+  line-height: 1.18;
+}
+
+.toast {
+  position: fixed;
+  left: 18px;
+  right: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 40;
+  width: min(calc(100% - 36px), 520px);
+  margin: 0 auto;
+  padding: 13px 15px;
+  border-radius: 8px;
+  background: rgba(31, 48, 54, 0.92);
+  color: white;
+  text-align: center;
+  font-weight: 700;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.24);
+}
+
+.app-teacher {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(115, 156, 171, 0.32), transparent 34%),
+    linear-gradient(145deg, #16242c, #26313b 46%, #1d252d);
+  color: #f5f8f8;
+}
+
+.teacher-view {
+  width: min(100%, 980px);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: calc(24px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom));
+  display: grid;
+  gap: 14px;
+}
+
+.teacher-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 6px 2px 8px;
+}
+
+.teacher-header h1 {
+  margin: 8px 0 0;
+  font-size: 2rem;
+  letter-spacing: 0;
+}
+
+.teacher-kicker {
+  color: rgba(245, 248, 248, 0.76);
+}
+
+.teacher-icon-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.11);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.glass-section {
+  padding: 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.11);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.section-title h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.section-title span,
+.empty-text {
+  color: rgba(245, 248, 248, 0.68);
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.metric-card,
+.hard-step,
+.session-card {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.metric-card {
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.metric-card span,
+.hard-step span,
+.step-record small {
+  color: rgba(245, 248, 248, 0.68);
+}
+
+.metric-card strong {
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+
+.trend-list {
+  display: grid;
+  gap: 12px;
+}
+
+.trend-row {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.88rem;
+}
+
+.bars {
+  display: grid;
+  gap: 5px;
+}
+
+.bar-line {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.bar-line span {
+  color: rgba(245, 248, 248, 0.7);
+}
+
+.bar-line i {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #9dd9cb, #e6cc8b);
+}
+
+.progress-summary {
+  margin: 14px 0 0;
+  color: #f3ead2;
+  line-height: 1.55;
+}
+
+.hard-step-list {
+  display: grid;
+  gap: 10px;
+}
+
+.hard-step {
+  padding: 13px;
+  display: grid;
+  gap: 6px;
+}
+
+.hard-step strong {
+  line-height: 1.35;
+}
+
+.hard-step small {
+  color: #f1dfaf;
+}
+
+.session-list {
+  display: grid;
+  gap: 10px;
+}
+
+.session-card {
+  overflow: hidden;
+}
+
+.session-card summary {
+  min-height: 52px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.session-card summary span {
+  color: rgba(245, 248, 248, 0.78);
+}
+
+.session-details {
+  padding: 0 12px 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.session-details p {
+  margin: 0;
+  color: rgba(245, 248, 248, 0.82);
+}
+
+.step-record {
+  padding: 10px;
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.danger-button {
+  min-height: 38px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(255, 219, 199, 0.16);
+  color: #ffe0d2;
+  font-size: 0.88rem;
+}
+
+.teacher-actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent, rgba(20, 31, 38, 0.92) 32%);
+}
+
+.teacher-button {
+  width: min(100%, 520px);
+  margin: 0 auto;
+  background: #edf6f3;
+  color: #18333a;
+}
+
+@media (min-width: 760px) {
+  .home-view,
+  .task-view,
+  .complete-view {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+  .home-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-actions .primary-button,
+  .home-actions .text-button {
+    grid-column: 1 / -1;
+  }
+
+  .student-actions {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .teacher-view {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .teacher-header,
+  .teacher-view .glass-section:nth-of-type(2),
+  .teacher-view .glass-section:nth-of-type(4) {
+    grid-column: 1 / -1;
+  }
+
+  .metric-grid,
+  .hard-step-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .hard-step-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
