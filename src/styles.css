@@ -199,22 +199,6 @@ button {
   font-weight: 700;
 }
 
-.step-dots {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 6px;
-}
-
-.step-dots i {
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(36, 70, 79, 0.14);
-}
-
-.step-dots i.done {
-  background: #2d6b72;
-}
-
 .step-panel {
   display: grid;
   gap: 22px;
@@ -594,15 +578,52 @@ svg { flex-shrink: 0; }
 .text-button { background: transparent; color: #566477; font-size: 18px; box-shadow: none; }
 .reminder-status { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 0; color: #52637a; font-size: 15px; }
 .task-header { text-align: center; color: #526177; font-size: 20px; font-weight: 500; gap: 16px; }
-.step-dots { padding: 0 28px; gap: 7px; }
-.step-dots i { height: 4px; background: #d2dbe8; }
-.step-dots i.done { background: #6988b6; }
 .step-panel { min-height: 260px; padding: 36px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; text-align: center; animation: enter 240ms ease both; }
 .step-panel h1 { color: #263342; line-height: 1.4; font-weight: 600; text-wrap: balance; }
 .student-actions { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
-.student-actions .primary-button { grid-column: 1 / -1; min-height: 78px; font-size: 24px; }
+.task-bottom-action .primary-button { min-height: 78px; font-size: 24px; }
 .student-actions .voice-button, .student-actions .help-button { min-height: 56px; padding-inline: 8px; font-size: 18px; gap: 8px; }
 .help-label { font-size: 16px; white-space: nowrap; }
+.add-task-entry { position: fixed; top: calc(14px + env(safe-area-inset-top)); right: 70px; z-index: 20; width: 48px; height: 48px; display: grid; place-items: center; background: transparent; color: #677588; border-radius: 50%; }
+.add-task-entry:hover { background: rgba(255,255,255,.4); }
+.task-switcher { display: flex; align-items: center; justify-content: center; gap: 24px; color: #657184; font-size: 16px; }
+.icon-button { width: 44px; height: 44px; display: inline-grid; place-items: center; border-radius: 14px; color: #526b8e; background: rgba(255,255,255,.55); border: 1px solid rgba(255,255,255,.7); }
+.hero-copy h1, .step-panel h1 { overflow-wrap: anywhere; }
+.hero-copy { animation: enter 240ms ease both; }
+.task-view { flex: 0; padding-bottom: 32px; padding-top: calc(84px + env(safe-area-inset-top)); }
+.task-view .student-actions { margin-top: 4px; }
+.task-bottom-action { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; padding: 16px 24px calc(16px + env(safe-area-inset-bottom)); display: flex; justify-content: center; background: rgba(238,242,249,.84); border-top: 1px solid rgba(255,255,255,.8); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+.task-bottom-action .primary-button { width: min(100%,512px); }
+.app-task { padding-bottom: calc(134px + env(safe-area-inset-bottom)); }
+.app-task .designer-credit { padding-bottom: 20px; }
+.app-task .toast { bottom: calc(124px + env(safe-area-inset-bottom)); }
+.step-progress { height: 4px; width: 100%; background: #d2dbe8; border-radius: 4px; overflow: hidden; }
+.step-progress i { display: block; height: 100%; background: #6988b6; transition: width 240ms ease; }
+.task-editor { display: grid; min-width: 0; gap: 22px; }
+.task-editor .setting-field input[type="text"] { padding-inline: 16px; text-align: left; font-size: 20px; }
+.setting-field select, .setting-field textarea { font: inherit; width: 100%; min-width: 0; min-height: 56px; margin: 0; border: 1px solid rgba(255,255,255,.9); border-radius: 16px; background: rgba(222,229,241,.5); color: #27374d; padding: 14px 16px; font-size: 18px; line-height: 1.5; }
+.setting-field textarea { resize: vertical; }
+.setting-field select { text-overflow: ellipsis; }
+.setting-field textarea:focus-visible, .setting-field select:focus-visible { outline: 3px solid #7297cc; outline-offset: 3px; }
+.editor-steps { display: grid; gap: 18px; }
+.editor-steps h3 { margin: 0; font-size: 20px; font-weight: 600; }
+.editor-step { display: grid; gap: 8px; }
+.step-edit-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.task-management { display: grid; gap: 12px; }
+.test-task-label { margin: 0; color: #657185; font-size: 15px; overflow-wrap: anywhere; }
+.form-error { color: #7a4357; line-height: 1.5; margin: 0; }
+.delete-confirmation { margin: 0; font-size: 22px; line-height: 1.6; overflow-wrap: anywhere; }
+.sheet-header h2 { font-size: 24px; line-height: 1.4; }
+.sheet-header { gap: 12px; }
+.close-button { flex-shrink: 0; }
+.sheet-overlay { z-index: 35; }
+.reminder-overlay { z-index: 36; }
+.analysis-filter select { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); color: #edf3ff; }
+.analysis-filter option { background: #263140; color: #edf3ff; }
+.analysis-filter > span { color: #b8c5d8; }
+.session-card summary span, .session-details p, .step-record span { overflow-wrap: anywhere; }
+@media (max-width: 360px) { .task-bottom-action { padding-inline: 18px; } }
+@media (min-width: 760px) { .task-bottom-action .primary-button { max-width: 504px; } }
 .complete-view { animation: enter 280ms ease both; gap: 24px; }
 .complete-badge { width: 120px; height: 120px; color: #4a6fa6; background: rgba(255,255,255,.65); border: 1px solid white; box-shadow: var(--shadow); backdrop-filter: blur(20px); }
 .complete-view h1 { font-weight: 600; margin: 0; }
