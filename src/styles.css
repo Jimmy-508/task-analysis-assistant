@@ -601,7 +601,8 @@ svg { flex-shrink: 0; }
 .step-panel h1 { color: #263342; line-height: 1.4; font-weight: 600; text-wrap: balance; }
 .student-actions { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
 .student-actions .primary-button { grid-column: 1 / -1; min-height: 78px; font-size: 24px; }
-.student-actions .voice-button, .student-actions .help-button { min-height: 56px; padding-inline: 8px; font-size: 18px; }
+.student-actions .voice-button, .student-actions .help-button { min-height: 56px; padding-inline: 8px; font-size: 18px; gap: 8px; }
+.help-label { font-size: 16px; white-space: nowrap; }
 .complete-view { animation: enter 280ms ease both; gap: 24px; }
 .complete-badge { width: 120px; height: 120px; color: #4a6fa6; background: rgba(255,255,255,.65); border: 1px solid white; box-shadow: var(--shadow); backdrop-filter: blur(20px); }
 .complete-view h1 { font-weight: 600; margin: 0; }

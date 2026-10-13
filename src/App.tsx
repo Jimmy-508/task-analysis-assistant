@@ -238,11 +238,11 @@ function playReminderSound() {
   }
 }
 
-function speakStep(step: Step, onError: () => void) {
+function speakText(text: string, onError: () => void) {
   try {
     if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return false;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(`第 ${step.id} 步，${step.name}。`);
+    const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'zh-TW';
     utterance.rate = 0.88;
     utterance.onerror = (event) => {
@@ -263,6 +263,7 @@ export function App() {
   const [reminder, setReminder] = useState<ReminderState>(defaultReminder);
   const [reminderVisible, setReminderVisible] = useState(false);
   const [toast, setToast] = useState('');
+  const [helpFeedback, setHelpFeedback] = useState(0);
   const [pressProgress, setPressProgress] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [reminderTime, setReminderTime] = useState(loadReminderTime);
@@ -283,6 +284,12 @@ export function App() {
   }, [toast]);
 
   useEffect(() => {
+    if (!helpFeedback) return;
+    const timer = window.setTimeout(() => setHelpFeedback(0), 2200);
+    return () => window.clearTimeout(timer);
+  }, [helpFeedback]);
+
+  useEffect(() => {
     if (!reminder.active || !reminder.dueAt) return;
     const dueAt = reminder.dueAt;
     const interval = window.setInterval(() => {
@@ -299,6 +306,7 @@ export function App() {
   const latestMetrics = metrics[metrics.length - 1];
 
   function beginTask() {
+    setHelpFeedback(0);
     const firstStep = defaultTask.steps[0];
     const session: SessionRecord = {
       id: makeId(),
@@ -326,7 +334,7 @@ export function App() {
   function handleSpeech() {
     const step = defaultTask.steps[stepIndex];
     const speechFallback = () => setToast('此裝置目前無法語音朗讀，已記錄提示次數。');
-    const spoke = speakStep(step, speechFallback);
+    const spoke = speakText(`第 ${step.id} 步，${step.name}。`, speechFallback);
     updateCurrentStep((record) => {
       const updated = { ...record, speechReplayCount: record.speechReplayCount + 1 };
       return { ...updated, independenceLevel: getIndependenceLevel(updated) };
@@ -339,11 +347,16 @@ export function App() {
       const updated = { ...record, helpCount: record.helpCount + 1 };
       return { ...updated, independenceLevel: getIndependenceLevel(updated) };
     });
-    setToast('已記錄需要幫助。可以休息一下，再按完成繼續。');
+    setHelpFeedback((count) => count + 1);
+    const speechFallback = () => setToast('目前無法播放求助語音，已記錄需要幫助。');
+    const step = defaultTask.steps[stepIndex];
+    const spoke = speakText(`不好意思，我需要幫忙。我現在正在做：${step.name}。`, speechFallback);
+    if (!spoke) speechFallback();
   }
 
   function completeStep() {
     if (!activeSession) return;
+    setHelpFeedback(0);
     const now = new Date().toISOString();
     const finishedStep = {
       ...activeSession.steps[stepIndex],
@@ -484,9 +497,9 @@ export function App() {
               <AudioLines size={24} />
               播放語音
             </button>
-            <button className="help-button" onClick={handleHelp}>
+            <button className="help-button" onClick={handleHelp} aria-label="需要幫助">
               <HelpCircle size={22} />
-              需要幫助
+              <span className="help-label" aria-live="polite">{helpFeedback ? '已發出求助' : '需要幫助'}</span>
             </button>
             <button className="primary-button" onClick={completeStep}>
               <Check size={26} />
