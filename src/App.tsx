@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   BarChart3,
+  Backpack,
   Bell,
   Check,
-  Clock,
   HelpCircle,
   Home,
   Play,
   RotateCcw,
   Shield,
   Trash2,
-  Volume2,
+  AudioLines,
+  Settings2,
+  X,
 } from 'lucide-react';
 
 type Step = {
@@ -102,12 +104,21 @@ function loadSessions(): SessionRecord[] {
   }
 }
 
-function saveSessions(sessions: SessionRecord[]) {
+function loadReminderTime() {
+  try {
+    const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').reminderTime;
+    return typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value) ? value : defaultTask.reminderTime;
+  } catch {
+    return defaultTask.reminderTime;
+  }
+}
+
+function saveSessions(sessions: SessionRecord[], reminderTime: string) {
   localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify({
-      taskSettings: defaultTask,
-      reminderTime: defaultTask.reminderTime,
+      taskSettings: { ...defaultTask, reminderTime },
+      reminderTime,
       sessions,
       updatedAt: new Date().toISOString(),
     }),
@@ -253,12 +264,17 @@ export function App() {
   const [reminderVisible, setReminderVisible] = useState(false);
   const [toast, setToast] = useState('');
   const [pressProgress, setPressProgress] = useState(0);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [reminderTime, setReminderTime] = useState(loadReminderTime);
+  const [testValue, setTestValue] = useState('30');
+  const [testUnit, setTestUnit] = useState<'seconds' | 'minutes'>('seconds');
+  const holdCompleted = useRef(false);
   const holdStart = useRef<number | null>(null);
   const holdFrame = useRef<number | null>(null);
 
   useEffect(() => {
-    saveSessions(sessions);
-  }, [sessions]);
+    saveSessions(sessions, reminderTime);
+  }, [sessions, reminderTime]);
 
   useEffect(() => {
     if (!toast) return;
@@ -359,15 +375,15 @@ export function App() {
 
   function setDailyReminder() {
     prepareReminderAudio();
-    const dueAt = scheduleTodayAt(defaultTask.reminderTime);
+    const dueAt = scheduleTodayAt(reminderTime);
     setReminder({ active: true, dueAt, label: '預定提醒' });
-    setToast(`已設定 ${defaultTask.reminderTime} 提醒。網頁開啟期間會顯示全畫面提醒。`);
+    setToast(`已設定 ${reminderTime} 提醒。`);
   }
 
   function setTestReminder(seconds: number) {
     prepareReminderAudio();
     setReminder({ active: true, dueAt: Date.now() + seconds * 1000, label: `${seconds} 秒測試提醒` });
-    setToast(`已設定 ${seconds === 30 ? '30 秒' : '1 分鐘'}後提醒。`);
+    setToast(`已設定 ${seconds < 60 ? `${seconds} 秒` : `${seconds / 60} 分鐘`}後提醒。`);
   }
 
   function cancelHold() {
@@ -377,13 +393,17 @@ export function App() {
   }
 
   function startHold() {
+    cancelHold();
+    holdCompleted.current = false;
     holdStart.current = Date.now();
     const tick = () => {
       if (!holdStart.current) return;
       const progress = Math.min(1, (Date.now() - holdStart.current) / 7000);
       setPressProgress(progress);
       if (progress >= 1) {
+        holdCompleted.current = true;
         cancelHold();
+        setSettingsOpen(false);
         setView('teacher');
         return;
       }
@@ -407,81 +427,70 @@ export function App() {
       {view !== 'teacher' && (
         <button
           className="secret-entry"
-          aria-label="隱藏入口"
+          aria-label="設定"
+          title="設定"
+          onClick={() => {
+            if (!holdCompleted.current) setSettingsOpen(true);
+            holdCompleted.current = false;
+          }}
           onPointerDown={startHold}
           onPointerUp={cancelHold}
           onPointerLeave={cancelHold}
           onPointerCancel={cancelHold}
           onContextMenu={(event) => event.preventDefault()}
         >
-          <span
-            className="secret-ring"
-            style={{ background: `conic-gradient(#5e6b76 ${pressProgress * 360}deg, rgba(94,107,118,.16) 0deg)` }}
-          />
+          <Settings2 size={24} strokeWidth={1.6} />
+          <svg className="secret-ring" viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="21" pathLength="1" strokeDasharray="1" strokeDashoffset={1 - pressProgress} />
+          </svg>
         </button>
       )}
 
       {view === 'home' && (
         <section className="home-view">
-          <div className="top-mark">
-            <Bell size={18} />
-            <span>網頁開啟期間提醒</span>
-          </div>
+          <p className="home-heading">我要做的事</p>
           <div className="hero-copy">
-            <p>今晚的任務</p>
+            <Backpack className="task-symbol" size={44} strokeWidth={1.4} aria-hidden="true" />
             <h1>{defaultTask.name}</h1>
             <div className="time-pill">
-              <Clock size={22} />
-              <span>{defaultTask.reminderTime}</span>
+              <span>提醒時間</span>
+              <strong>{reminderTime}</strong>
             </div>
-          </div>
-          <div className="home-actions">
             <button className="primary-button" onClick={beginTask}>
               <Play size={22} />
               開始任務
             </button>
-            <button className="soft-button" onClick={() => setTestReminder(30)}>
-              30 秒測試提醒
-            </button>
-            <button className="soft-button" onClick={() => setTestReminder(60)}>
-              1 分鐘測試提醒
-            </button>
-            <button className="text-button" onClick={setDailyReminder}>
-              設定今晚 {defaultTask.reminderTime} 提醒
-            </button>
           </div>
-          <p className="browser-note">提醒功能適合示範網頁開啟期間的定時提示，手機背景執行會受到瀏覽器限制。</p>
+          {reminder.active && <p className="reminder-status" role="status"><Bell size={16} />{reminder.label}已設定</p>}
         </section>
       )}
 
       {view === 'task' && currentStep && currentRecord && (
         <section className="task-view">
           <div className="task-header">
-            <span>第 {currentStep.id} 步 / 共 {defaultTask.steps.length} 步</span>
+            <span>步驟 {currentStep.id} / {defaultTask.steps.length}</span>
             <div className="step-dots" aria-hidden="true">
               {defaultTask.steps.map((step, index) => (
                 <i key={step.id} className={index <= stepIndex ? 'done' : ''} />
               ))}
             </div>
           </div>
-          <div className="step-panel">
-            <div className="image-placeholder">
-              <span>{currentStep.imageHint || '圖片區塊'}</span>
-            </div>
+          <div className="step-panel" key={currentStep.id}>
+            <Backpack className="task-symbol" size={56} strokeWidth={1.3} aria-hidden="true" />
             <h1>{currentStep.name}</h1>
           </div>
           <div className="student-actions">
             <button className="voice-button" onClick={handleSpeech}>
-              <Volume2 size={24} />
+              <AudioLines size={24} />
               播放語音
-            </button>
-            <button className="primary-button" onClick={completeStep}>
-              <Check size={26} />
-              完成
             </button>
             <button className="help-button" onClick={handleHelp}>
               <HelpCircle size={22} />
               需要幫助
+            </button>
+            <button className="primary-button" onClick={completeStep}>
+              <Check size={26} />
+              完成
             </button>
           </div>
         </section>
@@ -492,7 +501,7 @@ export function App() {
           <div className="complete-badge">
             <Check size={52} />
           </div>
-          <h1>完成了！</h1>
+          <h1>完成了</h1>
           <p>今天的書包已經整理好了。</p>
           <button className="primary-button" onClick={() => setView('home')}>
             <Home size={22} />
@@ -511,6 +520,38 @@ export function App() {
         />
       )}
 
+      <footer className="designer-credit">Designed by Jimmy</footer>
+
+      {settingsOpen && (
+        <SettingsSheet onClose={() => setSettingsOpen(false)}>
+          <label className="setting-field">
+            <span>提醒時間</span>
+            <input type="time" value={reminderTime} onChange={(event) => {
+              if (event.target.value) setReminderTime(event.target.value);
+            }} onBlur={(event) => {
+              if (event.target.value) setReminderTime(event.target.value);
+            }} />
+          </label>
+          <button className="soft-button" onClick={() => { setDailyReminder(); setSettingsOpen(false); }}>
+            <Bell size={20} />設定提醒
+          </button>
+          <div className="settings-divider" />
+          <label className="setting-field">
+            <span>測試提醒數值</span>
+            <input type="number" inputMode="numeric" min="1" max="3600" value={testValue} onChange={(event) => setTestValue(event.target.value)} onBlur={(event) => setTestValue(event.target.value)} />
+          </label>
+          <div className="unit-control" role="group" aria-label="測試提醒單位">
+            <button aria-pressed={testUnit === 'seconds'} onClick={() => setTestUnit('seconds')}>秒</button>
+            <button aria-pressed={testUnit === 'minutes'} onClick={() => setTestUnit('minutes')}>分</button>
+          </div>
+          <button className="primary-button" disabled={!Number.isInteger(Number(testValue)) || Number(testValue) < 1 || Number(testValue) > 3600} onClick={() => {
+            setTestReminder(Number(testValue) * (testUnit === 'minutes' ? 60 : 1));
+            setSettingsOpen(false);
+          }}><Play size={20} />開始測試提醒</button>
+          <p className="browser-note">請保持網頁開啟。手機背景執行可能限制提醒。</p>
+        </SettingsSheet>
+      )}
+
       {reminderVisible && (
         <div className="reminder-overlay" role="dialog" aria-modal="true">
           <div className="reminder-card">
@@ -527,8 +568,40 @@ export function App() {
         </div>
       )}
 
-      {toast && <div className="toast">{toast}</div>}
+      {toast && <div className="toast" role="status">{toast}</div>}
     </main>
+  );
+}
+
+function SettingsSheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  const sheetRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    sheetRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      previousFocus?.focus();
+    };
+  }, []);
+  return (
+    <div className="sheet-overlay" onClick={onClose}>
+      <div ref={sheetRef} className="settings-sheet" role="dialog" aria-modal="true" aria-labelledby="settings-title" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => {
+        if (event.key === 'Escape') onClose();
+        if (event.key !== 'Tab') return;
+        const controls = sheetRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input');
+        if (!controls?.length) return;
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }}>
+        <div className="sheet-handle" aria-hidden="true" />
+        <header className="sheet-header"><h2 id="settings-title">設定</h2><button className="close-button" aria-label="關閉設定" onClick={onClose}><X size={22} /></button></header>
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -570,16 +643,13 @@ function TeacherDashboard({
           <h2>今日表現</h2>
           <span>{sessions.length} 次紀錄</span>
         </div>
-        {latestMetrics ? (
-          <div className="metric-grid">
-            <Metric label="完成率" value={percent(latestMetrics.completionRate)} />
-            <Metric label="獨立完成率" value={percent(latestMetrics.independentRate)} />
-            <Metric label="平均提示" value={latestMetrics.averagePromptLevel.toFixed(1)} />
-            <Metric label="完成時間" value={formatSeconds(latestMetrics.totalSeconds)} />
-          </div>
-        ) : (
-          <p className="empty-text">尚無任務紀錄。完成一次任務後，這裡會顯示分析資料。</p>
-        )}
+        <div className="metric-grid">
+          <Metric label="完成率" value={latestMetrics ? percent(latestMetrics.completionRate) : '--'} />
+          <Metric label="獨立完成率" value={latestMetrics ? percent(latestMetrics.independentRate) : '--'} />
+          <Metric label="平均提示" value={latestMetrics ? latestMetrics.averagePromptLevel.toFixed(1) : '--'} />
+          <Metric label="完成時間" value={latestMetrics ? formatSeconds(latestMetrics.totalSeconds) : '--'} />
+        </div>
+        {!latestMetrics && <p className="empty-text">尚無任務紀錄。</p>}
       </section>
 
       <section className="glass-section">
